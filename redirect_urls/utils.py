@@ -20,6 +20,12 @@ from django.views.decorators.vary import vary_on_headers
 from redirect_urls.decorators import cache_control_expires
 
 
+# py3 compat
+try:
+    isinstance('dude', basestring)
+except NameError:
+    basestring = str
+
 LOCALE_RE = r'^(?P<locale>\w{2,3}(?:-\w{2})?/)?'
 # redirects registry
 redirectpatterns = []
