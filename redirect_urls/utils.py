@@ -4,8 +4,11 @@
 
 import logging
 import re
-from urllib import urlencode
-from urlparse import parse_qs
+try:
+    from urllib.parse import parse_qs, urlencode
+except ImportError:
+    from urllib import urlencode
+    from urlparse import parse_qs
 
 from django.core.urlresolvers import NoReverseMatch, RegexURLResolver, reverse
 from django.conf.urls import url
