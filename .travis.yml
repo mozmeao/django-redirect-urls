@@ -1,0 +1,18 @@
+sudo: false
+language: python
+python:
+- '3.6'
+install:
+- travis_retry pip install tox
+script: tox
+deploy:
+  provider: pypi
+  distributions: sdist bdist_wheel
+  user: pmclanahan
+  skip_cleanup: true
+  on:
+    tags: true
+    repo: pmac/django-redirect-urls
+  password:
+    secure: OtGsIOXQUt6sSxs76PY/U3NMU+S2Z401/ovd0oX11CBdwX4rbdASgl0NoA5c3zguS8/d8VmtDnXXXT1tGLJFXmqcUlc5mEmnZakFIoWY/2ILYg4naKtoa9OwrzOOaE5GZs0PwEcOIigZ+0LTblWK5TJqvRwu+gmxrOn4pAFy3l40dupEb82fKVeZGMekZjZc7JUiaki5J8L9bIQEB5Yvnp9KX2wKxxib5YgP4EyqATVG3CoYkfRRhfs56LC7UGIUhKVlRLtiWgGxdDVyEmRvcTCn89z0p9tpKrLm7Q4pHc2IGEPJckyOSYtMSWC4lkzIYdl47OKTDdeCsZR0AAUvHzaZWICyq9EeD2BvLk3ikXrRMbPjzAF5mjkOg5iRvkpy13PESJ3kCjD4xQBMiCZBwbXnwCzL8okLcL4A2kOMLoVcIDTQqXm2PLYoEfQkuj6mK2UnEvJzpTZPGwVP3s/lYqamKxL6j8JDUPBAvuLZR5JbSEXOv5DMNHy97xs8VvtPeH5YvguhtNjHDq/Wgcp6CtIBrM4nrAyTu6c8MqawxsprXa2hMjMUodahKi8zTclIrVr7UjHilrFgSnGkWNYzs9nxWLHIMcEXhtUchg8UwzHZ/xH8thLPGbzqeBfHTb2JQ6gvfozic57YLpxqVMvUXUV9+xeAQJ3mM9exhBmYdi8=
+
