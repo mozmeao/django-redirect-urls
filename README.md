@@ -1,5 +1,7 @@
 # django-redirect-urls
 
+[![Build Status](https://travis-ci.org/pmac/django-redirect-urls.svg?branch=master)](https://travis-ci.org/pmac/django-redirect-urls)
+
 Manage URL redirects and rewrites in Django like you do other URLs: in code.
 
 This was extracted from [bedrock](https://github.com/mozilla/bedrock/) (the code behind www.mozilla.org).
