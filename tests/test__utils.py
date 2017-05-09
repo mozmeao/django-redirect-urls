@@ -17,14 +17,6 @@ from redirect_urls.utils import (get_resolver, header_redirector, is_firefox_red
                                  no_redirect, redirect, ua_redirector, platform_redirector)
 
 
-def eq_(one, two):
-    assert one == two
-
-
-def ok_(thing):
-    assert thing
-
-
 class TestHeaderRedirector(TestCase):
     def setUp(self):
         self.rf = RequestFactory()
@@ -109,8 +101,8 @@ class TestNoRedirectUrlPattern(TestCase):
         self.assertIsNone(resp)
 
         resp = middleware.process_request(self.rf.get('/iam/the/marmot/'))
-        eq_(resp.status_code, 301)
-        eq_(resp['Location'], '/coo/coo/cachoo/')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], '/coo/coo/cachoo/')
 
     def test_match_flags(self):
         """
@@ -130,8 +122,8 @@ class TestNoRedirectUrlPattern(TestCase):
 
         # sanity check
         resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
-        eq_(resp.status_code, 301)
-        eq_(resp['Location'], '/coo/coo/cachoo/')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], '/coo/coo/cachoo/')
 
 
 class TestRedirectUrlPattern(TestCase):
@@ -143,8 +135,8 @@ class TestRedirectUrlPattern(TestCase):
         Should return a RegexURLPattern with a matching name attribute
         """
         url_pattern = redirect(r'^the/dude$', 'abides', name='Lebowski')
-        ok_(isinstance(url_pattern, RegexURLPattern))
-        eq_(url_pattern.name, 'Lebowski')
+        self.assertTrue(isinstance(url_pattern, RegexURLPattern))
+        self.assertEqual(url_pattern.name, 'Lebowski')
 
     def test_no_query(self):
         """
@@ -153,8 +145,8 @@ class TestRedirectUrlPattern(TestCase):
         pattern = redirect(r'^the/dude$', 'abides')
         request = self.rf.get('the/dude')
         response = pattern.callback(request)
-        eq_(response.status_code, 301)
-        eq_(response['Location'], 'abides')
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], 'abides')
 
     def test_preserve_query(self):
         """
@@ -163,8 +155,8 @@ class TestRedirectUrlPattern(TestCase):
         pattern = redirect(r'^the/dude$', 'abides')
         request = self.rf.get('the/dude?aggression=not_stand')
         response = pattern.callback(request)
-        eq_(response.status_code, 301)
-        eq_(response['Location'], 'abides?aggression=not_stand')
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], 'abides?aggression=not_stand')
 
     def test_replace_query(self):
         """
@@ -174,8 +166,8 @@ class TestRedirectUrlPattern(TestCase):
                            query={'aggression': 'not_stand'})
         request = self.rf.get('the/dude?aggression=unchecked')
         response = pattern.callback(request)
-        eq_(response.status_code, 301)
-        eq_(response['Location'], 'abides?aggression=not_stand')
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], 'abides?aggression=not_stand')
 
     def test_merge_query(self):
         """
@@ -185,7 +177,7 @@ class TestRedirectUrlPattern(TestCase):
                            query={'aggression': 'not_stand'}, merge_query=True)
         request = self.rf.get('the/dude?hates=the-eagles')
         response = pattern.callback(request)
-        eq_(response.status_code, 301)
+        self.assertEqual(response.status_code, 301)
         url = urlparse(response['location'])
         query_dict = parse_qs(url.query)
         self.assertTrue(url.path, 'abides')
@@ -198,8 +190,8 @@ class TestRedirectUrlPattern(TestCase):
         pattern = redirect(r'^the/dude$', 'abides', query={})
         request = self.rf.get('the/dude?white=russian')
         response = pattern.callback(request)
-        eq_(response.status_code, 301)
-        eq_(response['Location'], 'abides')
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], 'abides')
 
     def test_temporary_redirect(self):
         """
@@ -208,8 +200,8 @@ class TestRedirectUrlPattern(TestCase):
         pattern = redirect(r'^the/dude$', 'abides', permanent=False)
         request = self.rf.get('the/dude')
         response = pattern.callback(request)
-        eq_(response.status_code, 302)
-        eq_(response['Location'], 'abides')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], 'abides')
 
     def test_anchor(self):
         """
@@ -218,8 +210,8 @@ class TestRedirectUrlPattern(TestCase):
         pattern = redirect(r'^the/dude$', 'abides', anchor='toe')
         request = self.rf.get('the/dude?want=a')
         response = pattern.callback(request)
-        eq_(response.status_code, 301)
-        eq_(response['Location'], 'abides?want=a#toe')
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], 'abides?want=a#toe')
 
     def test_callable(self):
         """
@@ -231,8 +223,8 @@ class TestRedirectUrlPattern(TestCase):
         pattern = redirect(r'^the/dude$', opinion)
         request = self.rf.get('the/dude')
         response = pattern.callback(request)
-        eq_(response.status_code, 301)
-        eq_(response['Location'], '/just/your/opinion/man')
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], '/just/your/opinion/man')
 
     @patch('redirect_urls.utils.reverse')
     def test_to_view(self, mock_reverse):
@@ -244,8 +236,8 @@ class TestRedirectUrlPattern(TestCase):
         request = self.rf.get('the/dude')
         response = pattern.callback(request)
         mock_reverse.assert_called_with('yeah.well.you.know.thats', args=None, kwargs=None)
-        eq_(response.status_code, 301)
-        eq_(response['Location'], '/just/your/opinion/man')
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], '/just/your/opinion/man')
 
     @patch('redirect_urls.utils.reverse')
     def test_to_view_args_kwargs(self, mock_reverse):
@@ -259,8 +251,8 @@ class TestRedirectUrlPattern(TestCase):
         response = pattern.callback(request)
         mock_reverse.assert_called_with('yeah.well.you.know.thats',
                                         args=['dude'], kwargs={'tapes': 'credence'})
-        eq_(response.status_code, 301)
-        eq_(response['Location'], '/just/your/opinion/man')
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], '/just/your/opinion/man')
 
     def test_cache_headers(self):
         """
@@ -269,9 +261,9 @@ class TestRedirectUrlPattern(TestCase):
         pattern = redirect(r'^the/dude$', 'abides', cache_timeout=2)
         request = self.rf.get('the/dude')
         response = pattern.callback(request)
-        eq_(response.status_code, 301)
-        eq_(response['Location'], 'abides')
-        eq_(response['cache-control'], 'max-age=7200')  # 2 hours
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], 'abides')
+        self.assertEqual(response['cache-control'], 'max-age=7200')  # 2 hours
 
     def test_vary_header(self):
         """
@@ -280,9 +272,9 @@ class TestRedirectUrlPattern(TestCase):
         pattern = redirect(r'^the/dude$', 'abides', vary='Accept-Language')
         request = self.rf.get('the/dude')
         response = pattern.callback(request)
-        eq_(response.status_code, 301)
-        eq_(response['Location'], 'abides')
-        eq_(response['Vary'], 'Accept-Language')
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], 'abides')
+        self.assertEqual(response['Vary'], 'Accept-Language')
 
     def test_value_capture_and_substitution(self):
         """
@@ -291,8 +283,8 @@ class TestRedirectUrlPattern(TestCase):
         resolver = get_resolver([redirect(r'^iam/the/(?P<name>.+)/$', '/donnie/the/{name}/')])
         middleware = RedirectsMiddleware(resolver)
         resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
-        eq_(resp.status_code, 301)
-        eq_(resp['Location'], '/donnie/the/walrus/')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], '/donnie/the/walrus/')
 
     def test_locale_value_capture(self):
         """
@@ -302,8 +294,8 @@ class TestRedirectUrlPattern(TestCase):
                                           '/donnie/the/{name}/')])
         middleware = RedirectsMiddleware(resolver)
         resp = middleware.process_request(self.rf.get('/pt-BR/iam/the/walrus/'))
-        eq_(resp.status_code, 301)
-        eq_(resp['Location'], '/pt-BR/donnie/the/walrus/')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], '/pt-BR/donnie/the/walrus/')
 
     def test_locale_value_capture_no_locale(self):
         """
@@ -313,8 +305,8 @@ class TestRedirectUrlPattern(TestCase):
                                           '/donnie/the/{name}/')])
         middleware = RedirectsMiddleware(resolver)
         resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
-        eq_(resp.status_code, 301)
-        eq_(resp['Location'], '/donnie/the/walrus/')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], '/donnie/the/walrus/')
 
     def test_locale_value_capture_ignore_locale(self):
         """
@@ -324,8 +316,8 @@ class TestRedirectUrlPattern(TestCase):
                                           '/donnie/the/{name}/', prepend_locale=False)])
         middleware = RedirectsMiddleware(resolver)
         resp = middleware.process_request(self.rf.get('/zh-TW/iam/the/walrus/'))
-        eq_(resp.status_code, 301)
-        eq_(resp['Location'], '/donnie/the/walrus/')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], '/donnie/the/walrus/')
 
     def test_no_locale_prefix(self):
         """
@@ -339,8 +331,8 @@ class TestRedirectUrlPattern(TestCase):
                                           locale_prefix=False)])
         middleware = RedirectsMiddleware(resolver)
         resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
-        eq_(resp.status_code, 301)
-        eq_(resp['Location'], '/donnie/the/walrus/')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], '/donnie/the/walrus/')
 
     def test_empty_unnamed_captures(self):
         """
@@ -350,8 +342,8 @@ class TestRedirectUrlPattern(TestCase):
                                           locale_prefix=False)])
         middleware = RedirectsMiddleware(resolver)
         resp = middleware.process_request(self.rf.get('/iam/the/'))
-        eq_(resp.status_code, 301)
-        eq_(resp['Location'], '/donnie/the/')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], '/donnie/the/')
 
     def test_match_flags(self):
         """
@@ -363,18 +355,18 @@ class TestRedirectUrlPattern(TestCase):
         ])
         middleware = RedirectsMiddleware(resolver)
         resp = middleware.process_request(self.rf.get('/IAm/The/Walrus/'))
-        eq_(resp.status_code, 301)
-        eq_(resp['Location'], '/dammit/donnie/')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], '/dammit/donnie/')
 
         # also with locale
         resp = middleware.process_request(self.rf.get('/es-ES/Iam/The/Walrus/'))
-        eq_(resp.status_code, 301)
-        eq_(resp['Location'], '/es-ES/dammit/donnie/')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], '/es-ES/dammit/donnie/')
 
         # sanity check
         resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
-        eq_(resp.status_code, 301)
-        eq_(resp['Location'], '/coo/coo/cachoo/')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], '/coo/coo/cachoo/')
 
     def test_non_ascii_strip_tags(self):
         """
@@ -389,6 +381,33 @@ class TestRedirectUrlPattern(TestCase):
         middleware = RedirectsMiddleware(resolver)
         resp = middleware.process_request(self.rf.get('/editor/midasdemo/securityprefs.html'
                                                       '%3C/span%3E%3C/a%3E%C2%A0'))
-        eq_(resp.status_code, 301)
-        eq_(resp['Location'],
-            'http://www-archive.mozilla.org/editor/midasdemo/securityprefs.html%C2%A0')
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], 'http://www-archive.mozilla.org/editor/midasdemo/'
+                                           'securityprefs.html%C2%A0')
+
+    @patch('redirect_urls.utils.reverse')
+    def test_urls_dont_call_reverse(self, reverse_mock):
+        """
+        Should not call reverse() for an obvious URL.
+        """
+        resolver = get_resolver([
+            redirect(r'^iam/the/walrus/$', '/coo/coo/cachoo/'),
+            redirect(r'^iam/the/ape-man/$', 'https://example.com/egg-man/'),
+        ])
+        middleware = RedirectsMiddleware(resolver)
+        resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], '/coo/coo/cachoo/')
+        resp = middleware.process_request(self.rf.get('/iam/the/ape-man/'))
+        self.assertEqual(resp.status_code, 301)
+        self.assertEqual(resp['Location'], 'https://example.com/egg-man/')
+        reverse_mock.assert_not_called()
+
+    def test_will_not_return_protocol_relative_redirect(self):
+        """Allowing a protocol relative URL can allow an unintended domain redirect."""
+        resolver = get_resolver([
+            redirect(r'^(.+)/$', '/{}/', locale_prefix=False),
+        ])
+        middleware = RedirectsMiddleware(resolver)
+        resp = middleware.process_request(self.rf.get('/%2fexample.com/'))
+        self.assertEqual(resp['Location'], '/example.com/')
