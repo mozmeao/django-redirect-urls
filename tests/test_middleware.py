@@ -12,7 +12,7 @@ patterns = [
     redirect(r'^dude/already/10th/', '/far/out/'),
     redirect(r'^walter/prior/restraint/', '/finishes/coffee/'),
 ]
-middleware = RedirectsMiddleware(get_resolver(patterns))
+middleware = RedirectsMiddleware.for_test(resolver=get_resolver(patterns))
 
 
 class TestRedirectsMiddleware(TestCase):
@@ -20,10 +20,10 @@ class TestRedirectsMiddleware(TestCase):
         self.rf = RequestFactory()
 
     def test_finds_and_uses_redirect(self):
-        resp = middleware.process_request(self.rf.get('/walter/prior/restraint/'))
+        resp = middleware(self.rf.get('/walter/prior/restraint/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['location'], '/finishes/coffee/')
 
     def test_no_redirect_match(self):
-        resp = middleware.process_request(self.rf.get('/donnie/out/element/'))
+        resp = middleware(self.rf.get('/donnie/out/element/'))
         self.assertIsNone(resp)
