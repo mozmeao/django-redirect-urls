@@ -91,16 +91,15 @@ class TestNoRedirectUrlPattern(TestCase):
             no_redirect(r'^iam/the/walrus/$'),
             redirect(r'^iam/the/.*/$', '/coo/coo/cachoo/'),
         ])
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
+        middleware = RedirectsMiddleware.for_test(resolver=resolver)
+        resp = middleware(self.rf.get('/iam/the/walrus/'))
         self.assertIsNone(resp)
 
         # including locale
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/pt-BR/iam/the/walrus/'))
+        resp = middleware(self.rf.get('/pt-BR/iam/the/walrus/'))
         self.assertIsNone(resp)
 
-        resp = middleware.process_request(self.rf.get('/iam/the/marmot/'))
+        resp = middleware(self.rf.get('/iam/the/marmot/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], '/coo/coo/cachoo/')
 
@@ -112,16 +111,16 @@ class TestNoRedirectUrlPattern(TestCase):
             redirect(r'^iam/the/walrus/$', '/coo/coo/cachoo/'),
             no_redirect(r'^iam/the/walrus/$', re_flags='i'),
         ])
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/IAm/The/Walrus/'))
+        middleware = RedirectsMiddleware.for_test(resolver=resolver)
+        resp = middleware(self.rf.get('/IAm/The/Walrus/'))
         self.assertIsNone(resp)
 
         # also with locale
-        resp = middleware.process_request(self.rf.get('/es-ES/Iam/The/Walrus/'))
+        resp = middleware(self.rf.get('/es-ES/Iam/The/Walrus/'))
         self.assertIsNone(resp)
 
         # sanity check
-        resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
+        resp = middleware(self.rf.get('/iam/the/walrus/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], '/coo/coo/cachoo/')
 
@@ -281,8 +280,8 @@ class TestRedirectUrlPattern(TestCase):
         Should be able to capture info from URL and use in redirection.
         """
         resolver = get_resolver([redirect(r'^iam/the/(?P<name>.+)/$', '/donnie/the/{name}/')])
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
+        middleware = RedirectsMiddleware.for_test(resolver=resolver)
+        resp = middleware(self.rf.get('/iam/the/walrus/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], '/donnie/the/walrus/')
 
@@ -292,8 +291,8 @@ class TestRedirectUrlPattern(TestCase):
         """
         resolver = get_resolver([redirect(r'^iam/the/(?P<name>.+)/$',
                                           '/donnie/the/{name}/')])
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/pt-BR/iam/the/walrus/'))
+        middleware = RedirectsMiddleware.for_test(resolver=resolver)
+        resp = middleware(self.rf.get('/pt-BR/iam/the/walrus/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], '/pt-BR/donnie/the/walrus/')
 
@@ -303,8 +302,8 @@ class TestRedirectUrlPattern(TestCase):
         """
         resolver = get_resolver([redirect(r'^iam/the/(?P<name>.+)/$',
                                           '/donnie/the/{name}/')])
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
+        middleware = RedirectsMiddleware.for_test(resolver=resolver)
+        resp = middleware(self.rf.get('/iam/the/walrus/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], '/donnie/the/walrus/')
 
@@ -314,8 +313,8 @@ class TestRedirectUrlPattern(TestCase):
         """
         resolver = get_resolver([redirect(r'^iam/the/(?P<name>.+)/$',
                                           '/donnie/the/{name}/', prepend_locale=False)])
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/zh-TW/iam/the/walrus/'))
+        middleware = RedirectsMiddleware.for_test(resolver=resolver)
+        resp = middleware(self.rf.get('/zh-TW/iam/the/walrus/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], '/donnie/the/walrus/')
 
@@ -329,8 +328,8 @@ class TestRedirectUrlPattern(TestCase):
         """
         resolver = get_resolver([redirect(r'^iam/the/(.+)/$', '/donnie/the/{}/',
                                           locale_prefix=False)])
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
+        middleware = RedirectsMiddleware.for_test(resolver=resolver)
+        resp = middleware(self.rf.get('/iam/the/walrus/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], '/donnie/the/walrus/')
 
@@ -340,8 +339,8 @@ class TestRedirectUrlPattern(TestCase):
         """
         resolver = get_resolver([redirect(r'^iam/the(/.+)?/$', '/donnie/the{}/',
                                           locale_prefix=False)])
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/iam/the/'))
+        middleware = RedirectsMiddleware.for_test(resolver=resolver)
+        resp = middleware(self.rf.get('/iam/the/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], '/donnie/the/')
 
@@ -353,18 +352,18 @@ class TestRedirectUrlPattern(TestCase):
             redirect(r'^iam/the/walrus/$', '/coo/coo/cachoo/'),
             redirect(r'^iam/the/walrus/$', '/dammit/donnie/', re_flags='i'),
         ])
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/IAm/The/Walrus/'))
+        middleware = RedirectsMiddleware.for_test(resolver=resolver)
+        resp = middleware(self.rf.get('/IAm/The/Walrus/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], '/dammit/donnie/')
 
         # also with locale
-        resp = middleware.process_request(self.rf.get('/es-ES/Iam/The/Walrus/'))
+        resp = middleware(self.rf.get('/es-ES/Iam/The/Walrus/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], '/es-ES/dammit/donnie/')
 
         # sanity check
-        resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
+        resp = middleware(self.rf.get('/iam/the/walrus/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], '/coo/coo/cachoo/')
 
@@ -378,9 +377,9 @@ class TestRedirectUrlPattern(TestCase):
         """
         resolver = get_resolver([redirect(r'^editor/(?P<page>.*)$',
                                           'http://www-archive.mozilla.org/editor/{page}')])
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/editor/midasdemo/securityprefs.html'
-                                                      '%3C/span%3E%3C/a%3E%C2%A0'))
+        middleware = RedirectsMiddleware.for_test(resolver=resolver)
+        resp = middleware(self.rf.get('/editor/midasdemo/securityprefs.html'
+                                      '%3C/span%3E%3C/a%3E%C2%A0'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], 'http://www-archive.mozilla.org/editor/midasdemo/'
                                            'securityprefs.html%C2%A0')
@@ -394,11 +393,11 @@ class TestRedirectUrlPattern(TestCase):
             redirect(r'^iam/the/walrus/$', '/coo/coo/cachoo/'),
             redirect(r'^iam/the/ape-man/$', 'https://example.com/egg-man/'),
         ])
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/iam/the/walrus/'))
+        middleware = RedirectsMiddleware.for_test(resolver=resolver)
+        resp = middleware(self.rf.get('/iam/the/walrus/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], '/coo/coo/cachoo/')
-        resp = middleware.process_request(self.rf.get('/iam/the/ape-man/'))
+        resp = middleware(self.rf.get('/iam/the/ape-man/'))
         self.assertEqual(resp.status_code, 301)
         self.assertEqual(resp['Location'], 'https://example.com/egg-man/')
         reverse_mock.assert_not_called()
@@ -408,6 +407,6 @@ class TestRedirectUrlPattern(TestCase):
         resolver = get_resolver([
             redirect(r'^(.+)/$', '/{}/', locale_prefix=False),
         ])
-        middleware = RedirectsMiddleware(resolver)
-        resp = middleware.process_request(self.rf.get('/%2fexample.com/'))
+        middleware = RedirectsMiddleware.for_test(resolver=resolver)
+        resp = middleware(self.rf.get('/%2fexample.com/'))
         self.assertEqual(resp['Location'], '/example.com/')
