@@ -10,12 +10,18 @@ except ImportError:
     from urllib import urlencode
     from urlparse import parse_qs
 
-from django.core.urlresolvers import NoReverseMatch, RegexURLResolver, reverse
+from django.urls import NoReverseMatch, reverse
 from django.conf.urls import url
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect, HttpResponseGone
 from django.utils.encoding import force_text
 from django.utils.html import strip_tags
 from django.views.decorators.vary import vary_on_headers
+try:
+    from django.urls import RegexURLResolver as URLResolver
+    RegexPattern = None
+except ImportError:
+    # Name changed in Django 2.0
+    from django.urls.resolvers import URLResolver, RegexPattern
 
 from redirect_urls.decorators import cache_control_expires
 
@@ -39,7 +45,10 @@ def register(patterns):
 
 
 def get_resolver(patterns=None):
-    return RegexURLResolver(r'^/', patterns or redirectpatterns)
+    pattern = r'^/'
+    if RegexPattern:
+        pattern = RegexPattern(pattern)
+    return URLResolver(pattern, patterns or redirectpatterns)
 
 
 def header_redirector(header_name, regex, match_dest, nomatch_dest, case_sensitive=False):

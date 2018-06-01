@@ -6,9 +6,13 @@ try:
 except ImportError:
     from urlparse import parse_qs, urlparse
 
-from django.conf.urls import RegexURLPattern
 from django.test import TestCase
 from django.test.client import RequestFactory
+try:
+    from django.urls import RegexURLPattern as URLPattern
+except ImportError:
+    from django.urls import URLPattern
+
 
 from mock import patch
 
@@ -132,10 +136,10 @@ class TestRedirectUrlPattern(TestCase):
 
     def test_name(self):
         """
-        Should return a RegexURLPattern with a matching name attribute
+        Should return a URLPattern with a matching name attribute
         """
         url_pattern = redirect(r'^the/dude$', 'abides', name='Lebowski')
-        self.assertTrue(isinstance(url_pattern, RegexURLPattern))
+        self.assertTrue(isinstance(url_pattern, URLPattern))
         self.assertEqual(url_pattern.name, 'Lebowski')
 
     def test_no_query(self):
