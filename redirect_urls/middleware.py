@@ -1,4 +1,4 @@
-from django.core.urlresolvers import Resolver404
+from django.urls import Resolver404
 
 from redirect_urls.utils import get_resolver
 
