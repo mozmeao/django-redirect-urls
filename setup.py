@@ -27,9 +27,9 @@ setup(
     include_package_data=True,
     zip_safe=False,
     keywords='django redirects',
-    install_requires=['Django>=1.8'],
+    install_requires=['Django>=1.11'],
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Framework :: Django',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',

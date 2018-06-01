@@ -85,3 +85,13 @@ redirectpatterns = [
 $ pip install tox
 $ tox
 ```
+
+## History
+
+### 1.0 - 2018-06-01
+
+Add support for Django 1.11 and 2.0, and drop support for earlier versions.
+
+### 0.2 - 2017-05-09
+
+Initial release.

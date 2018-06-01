@@ -9,5 +9,5 @@ from redirect_urls.utils import (
 )
 
 
-__version__ = '0.2'
+__version__ = '1.0'
 default_app_config = 'redirect_urls.apps.RedirectsConfig'
